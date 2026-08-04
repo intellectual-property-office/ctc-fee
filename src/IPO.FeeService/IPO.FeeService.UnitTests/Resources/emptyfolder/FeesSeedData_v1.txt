@@ -1,0 +1,5 @@
+INSERT INTO [ServiceRequestTypes]
+         ([Name],[E5AccountNumber])
+VALUES
+    ('Acceleration','C9999501'),
+	('CertifiedOfficeCopies','C9999501')

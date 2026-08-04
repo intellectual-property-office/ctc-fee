@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Gateways\**" />
+    <EmbeddedResource Remove="Gateways\**" />
+    <None Remove="Gateways\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Services\FeeCalculationServiceTests.cs" />
+    <Compile Remove="Services\PatentApplyAndSearchCalculatorTests.cs" />
+    <Compile Remove="Services\PatentApplyCalculatorTests.cs" />
+    <Compile Remove="Services\PatentApplySearchAndExamCalculatorTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="AutoFixture" Version="4.18.1" />
+	  <PackageReference Include="AwesomeAssertions" Version="9.3.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
+	  <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.3.11" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.2" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.2" />
+	  <PackageReference Include="Moq" Version="4.20.72" />
+	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+	  <PackageReference Include="MSTest.TestAdapter" Version="4.0.2" />
+	  <PackageReference Include="MSTest.TestFramework" Version="4.0.2" />
+	  <PackageReference Include="coverlet.collector" Version="6.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+	  <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IPO.FeeService.API\IPO.FeeService.API.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\emptyfolder\FeesSeedData_v1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\FeesSeedData_v1.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\FeesSeedData_v2.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\innerfolder\FeesSeedData_v3.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

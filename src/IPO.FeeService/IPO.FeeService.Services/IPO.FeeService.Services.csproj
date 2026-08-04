@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+	<Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IPO.Common.Infrastructure" Version="2.0.424213" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IPO.FeeService.Data\IPO.FeeService.Data.csproj" />
+    <ProjectReference Include="..\IPO.FeeService.Interfaces\IPO.FeeService.Interfaces.csproj" />
+    <ProjectReference Include="..\IPO.FeeService.Models\IPO.FeeService.Models.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+  <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+    <_Parameter1>IPO.FeeService.UnitTests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+</Project>
