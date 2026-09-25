@@ -29,6 +29,7 @@
         PatentSearch,
         PatentSearchAndExam,
         PatentSupplementarySearch,
+        PayForApplicationFee,
         PaymentOfAnnualSpcFees,
         PctAdditionalPage,
         PcteFilingReductionFull,

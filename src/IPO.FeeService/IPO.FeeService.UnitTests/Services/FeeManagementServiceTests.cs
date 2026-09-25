@@ -1440,6 +1440,133 @@ namespace IPO.FeeService.UnitTests.Services
         }
         #endregion
 
+        #region PayForApplicationFee
+        private async Task SetupPayForApplicationFeeDbValuesAsync(string channel)
+        {
+            var serviceRequestType = ServiceRequestTypeEnum.PayForApplicationFee;
+
+            if (!_feeDbRepository.Context.ServiceRequestTypes!.Any(x => x.Name == serviceRequestType.ToString()))
+            {
+                await Helper.CreateServiceRequestTypeInRepo(_feeDbRepository, 56, serviceRequestType.ToString(), "C9999501");
+            }
+
+            var feeDetails = new List<(DateTime EffectiveFrom, DateTime? EffectiveTo, decimal PriceExVat)>
+            {
+                (new DateTime(2018, 04, 06), new DateTime(2026, 03, 31), channel == "00" ? 75.00M : 112.50M),
+                (new DateTime(2026, 04, 01), null, channel == "00" ? 95.00M : 150.00M)
+            };
+
+            await Helper.AddCompleteProductToServiceRequestTypeMultipleFees(
+                _feeDbRepository,
+                serviceRequestType.ToString(),
+                channel,
+                "AF1",
+                "Application fee after filing",
+                0.00M,
+                "OS",
+                "IF((isApplicationFeePaid = 0),1,0)",
+                feeDetails,
+                productNumber: 1,
+                productSequence: 1);
+        }
+
+        [TestMethod]
+        [DataRow("00", "2018-04-06", 75.00)]
+        [DataRow("00", "2024-05-13", 75.00)]
+        [DataRow("00", "2026-03-31", 75.00)]
+        [DataRow("00", "2026-04-01", 95.00)]
+        [DataRow("00", "2026-10-05", 95.00)]
+        [DataRow("01", "2018-04-06", 112.50)]
+        [DataRow("01", "2024-05-13", 112.50)]
+        [DataRow("01", "2026-03-31", 112.50)]
+        [DataRow("01", "2026-04-01", 150.00)]
+        [DataRow("01", "2026-10-05", 150.00)]
+        public async Task CalculateFeesAsync_PayForApplicationFee_ReturnsCorrectFeeForDateAndChannel(string channel, string paidDate, double expectedFee)
+        {
+            // Arrange
+            await SetupPayForApplicationFeeDbValuesAsync(channel);
+
+            FeeCalculationRequest request = new()
+            {
+                PaidDate = paidDate,
+                RequestDetails = new[] { new FeeCalculationRequestDetails() }
+            };
+
+            // Act
+            var results = await _feeManagementService.CalculateFeesAsync(ServiceRequestTypeEnum.PayForApplicationFee, request, channel);
+
+            // Assert
+            results.Should().NotBeNull();
+            results.ServiceRequestType.Should().Be(ServiceRequestTypeEnum.PayForApplicationFee.ToString());
+            results.CustomerChannel.Should().Be(channel);
+            results.TotalIncVat.Should().Be((decimal)expectedFee);
+            results.LineItems.Length.Should().Be(1);
+            results.LineItems[0].E5ProductCode.Should().Be("AF1");
+            results.LineItems[0].Price.Should().Be((decimal)expectedFee);
+            results.LineItems[0].Quantity.Should().Be(1);
+        }
+
+        [TestMethod]
+        [DataRow("00", "2018-04-05")]
+        [DataRow("01", "2018-04-05")]
+        [DataRow("00", "2015-01-01")]
+        [DataRow("01", "2015-01-01")]
+        public async Task CalculateFeesAsync_PayForApplicationFee_BeforeApril2018_ThrowsNotFound(string channel, string paidDate)
+        {
+            // Arrange
+            await SetupPayForApplicationFeeDbValuesAsync(channel);
+
+            FeeCalculationRequest request = new()
+            {
+                PaidDate = paidDate,
+                RequestDetails = new[] { new FeeCalculationRequestDetails() }
+            };
+
+            // Act
+            var ex = await Assert.ThrowsExactlyAsync<StatusCodeException>(() =>
+                _feeManagementService.CalculateFeesAsync(ServiceRequestTypeEnum.PayForApplicationFee, request, channel));
+
+            // Assert
+            ex.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+            ex.Message.Should().Be("Unable to find data for the given request. A fee could not be calculated.");
+        }
+
+        [TestMethod]
+        [DataRow("00", true, 0.00)]
+        [DataRow("00", false, 75.00)]
+        [DataRow("01", true, 0.00)]
+        [DataRow("01", false, 112.50)]
+        public async Task CalculateFeesAsync_PayForApplicationFee_ReturnsCorrectFeeWhenApplicationFeePaidIsSet(string channel, bool isApplicationFeePaid, double expectedFee)
+        {
+            // Arrange
+            await SetupPayForApplicationFeeDbValuesAsync(channel);
+
+            FeeCalculationRequest request = new()
+            {
+                PaidDate = "2024-05-13",
+                RequestDetails = new[] { new FeeCalculationRequestDetails() { IsApplicationFeePaid = isApplicationFeePaid } }
+            };
+
+            // Act
+            var results = await _feeManagementService.CalculateFeesAsync(ServiceRequestTypeEnum.PayForApplicationFee, request, channel);
+
+            // Assert
+            results.Should().NotBeNull();
+            results.ServiceRequestType.Should().Be(ServiceRequestTypeEnum.PayForApplicationFee.ToString());
+            results.CustomerChannel.Should().Be(channel);
+            results.TotalIncVat.Should().Be((decimal)expectedFee);
+
+            if (expectedFee > 0)
+            {
+                results.LineItems.Length.Should().Be(1);
+                results.LineItems[0].Price.Should().Be((decimal)expectedFee);
+            }
+            else
+            {
+                results.LineItems.Length.Should().Be(0);
+            }
+        }
+        #endregion
 
         #region RetrieveFeeInformation
 

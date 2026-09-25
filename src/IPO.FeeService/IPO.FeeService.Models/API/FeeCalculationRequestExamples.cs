@@ -37,6 +37,7 @@ namespace IPO.FeeService.Models.API
             yield return SwaggerExample.Create("PatentSearch", GetPatentSearchWithClaimsCorrectionRequest());
             yield return SwaggerExample.Create("PatentSearchAndExam", GetClaimsAndPagesRequest());
             yield return SwaggerExample.Create("PatentSupplementarySearch", GetDateOnlyRequest());
+            yield return SwaggerExample.Create("PayForApplicationFee", GetPayForApplicationFeeRequest());
             yield return SwaggerExample.Create("PaymentOfAnnualSpcFees", GetPaymentOfAnnualSpcFeesExampleRequest());
             yield return SwaggerExample.Create("PctAdditionalPage", GetPagesRequest());
             yield return SwaggerExample.Create("PcteFilingReductionFull", GetDateOnlyRequest());
@@ -71,6 +72,16 @@ namespace IPO.FeeService.Models.API
         {
             return JsonDocument.Parse(@"{
                           ""paidDate"": ""2023-05-13""
+                          }");
+        }
+
+        private static JsonDocument GetPayForApplicationFeeRequest()
+        {
+            return JsonDocument.Parse(@"{
+                          ""paidDate"": ""2023-05-13"",
+                          ""requestDetails"": [ {
+                                ""isApplicationFeePaid"": false
+                                }]
                           }");
         }
 
